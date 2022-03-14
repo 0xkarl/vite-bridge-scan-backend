@@ -1,0 +1,19 @@
+{
+    "name": "@vite/vitejs-http",
+    "version": "2.3.17",
+    "main": "dist/index.node.js",
+    "browser": "dist/index.web.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/vitelabs/vite.js.git"
+    },
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/vitelabs/vite.js/issues"
+    },
+    "homepage": "https://github.com/vitelabs/vite.js#readme",
+    "publishConfig": {
+        "access": "public"
+    },
+    "gitHead": "4c2c50a2109df3680e78a2d9bacef0eda10f5a51"
+}

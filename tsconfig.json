@@ -1,0 +1,22 @@
+{
+  "include": ["src", "bin"],
+  "compilerOptions": {
+    "declaration": true,
+    "strict": false,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "outDir": "dist",
+    "checkJs": false,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "downlevelIteration": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "target": "esnext",
+    "module": "commonjs",
+    "baseUrl": "."
+  }
+}
