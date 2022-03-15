@@ -34,8 +34,8 @@ async function scan() {
 
     debug('last height', lastHeight);
 
-    const logs = await provider
-      .request('ledger_getVmLogsByFilter', {
+    const logs = (
+      await provider.request('ledger_getVmLogsByFilter', {
         addressHeightRange: {
           [address]: {
             fromHeight: '0', // currentHeight,
@@ -43,7 +43,7 @@ async function scan() {
           },
         },
       })
-      .slice(0, 50);
+    ).slice(0, 50);
 
     const events = ABI.filter(
       (a) => !a.anonymous && a.name && a.type === 'event'
