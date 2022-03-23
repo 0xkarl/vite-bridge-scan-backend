@@ -46,8 +46,8 @@ export async function saveTx({
   id: string;
   token: Token;
   putType: PutType;
-  from: string;
-  to: string;
+  from?: string;
+  to?: string;
   fee: string;
   timestamp: string;
   amount: string;
@@ -56,9 +56,13 @@ export async function saveTx({
 }) {
   const dbUpdate: Record<string, any> = {};
 
-  if (putType === 'input') {
+  if (from) {
     dbUpdate.from = sanitizeAddress(chain, from);
+  }
+  if (to) {
     dbUpdate.to = sanitizeAddress(chain === 'vite' ? 'bsc' : 'vite', to);
+  }
+  if (putType === 'input') {
     dbUpdate.fee = fee;
     dbUpdate.input = {
       timestamp,

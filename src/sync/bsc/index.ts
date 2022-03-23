@@ -99,7 +99,11 @@ async function saveTxs({
     if (putType === 'input' || putType === 'output') {
       const { timestamp: timestampBN } = await event.getBlock();
       const receipt = await event.getTransactionReceipt();
-      const { from, dest: to, id: ethId, value } = event.args!;
+      const { 
+        from,
+        // dest: to,
+        id: ethId, value 
+      } = event.args!;
       const chain = 'bsc';
       const id = ethId.replace('0x', '');
       const amount = value.toString();
@@ -120,7 +124,7 @@ async function saveTxs({
         token,
         putType,
         from,
-        to,
+        // to, // 00 error
         fee,
         timestamp,
         amount,
