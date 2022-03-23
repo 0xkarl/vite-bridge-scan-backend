@@ -43,7 +43,7 @@ async function scan() {
           },
         },
       })
-    ).slice(0, 50);
+    ).slice(0, 100);
 
     const events = ABI.filter(
       (a) => !a.anonymous && a.name && a.type === 'event'
