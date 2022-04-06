@@ -18,10 +18,16 @@ sync-bsc-2:
 fix-db:
 	@DEBUG=vite:* ./node_modules/.bin/env-cmd ./node_modules/.bin/ts-node bin/$@.ts
 
+deploy:
+	git push
+	git push heroku-testnet-api main
+	git push heroku-testnet-cron main
+
 .PHONY: \
 	web \
 	cron \
 	sync-vite \
 	sync-bsc \
 	sync-bsc-2 \
-	fix-db
+	fix-db \
+	deploy

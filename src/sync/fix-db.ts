@@ -9,7 +9,9 @@ async function scan() {
     docs.map((doc) => ({
       updateMany: {
         filter: { oid: doc.oid },
-        update: { $set: { 'output.timestamp': Number(doc.output.timestamp) } },
+        update: {
+          $set: { from: doc.from.toLowerCase(), to: doc.to.toLowerCase() },
+        },
         upsert: false,
       },
     }))

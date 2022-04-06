@@ -23,7 +23,7 @@ export function getRedisTxnKey(id: string): string {
 }
 
 export function sanitizeAddress(chain: Chain, address: string): string {
-  const addr = address.replace('0x', '').replace('vite_', '');
+  const addr = address.replace('0x', '').replace('vite_', '').toLowerCase();
   if (chain === 'vite') {
     return `vite_${addr}`;
   } else {
