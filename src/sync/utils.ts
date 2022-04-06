@@ -49,7 +49,7 @@ export async function saveTx({
   from?: string;
   to?: string;
   fee: string;
-  timestamp: string;
+  timestamp: number;
   amount: string;
   hash: string;
   chain: Chain;
@@ -57,10 +57,10 @@ export async function saveTx({
   const dbUpdate: Record<string, any> = {};
 
   if (from) {
-    dbUpdate.from = sanitizeAddress(chain, from);
+    dbUpdate.from = from;
   }
   if (to) {
-    dbUpdate.to = sanitizeAddress(chain === 'vite' ? 'bsc' : 'vite', to);
+    dbUpdate.to = to;
   }
   if (putType === 'input') {
     dbUpdate.fee = fee;

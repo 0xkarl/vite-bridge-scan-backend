@@ -1,11 +1,13 @@
 import * as ethers from 'ethers';
 import Debug from 'debug';
+import moment from 'moment';
 
 import { BSC_WEB3_PROVIDER, BSC_CONTRACTS } from '../../config';
 import { sleep } from '../../utils/promise';
 import {
   getRedisLatestSyncBlockKey,
   saveTx as baseSaveTx,
+  sanitizeAddress,
   Token,
 } from '../../sync/utils';
 import * as redis from '../../utils/redis';
@@ -99,15 +101,16 @@ async function saveTxs({
     if (putType === 'input' || putType === 'output') {
       const { timestamp: timestampBN } = await event.getBlock();
       const receipt = await event.getTransactionReceipt();
-      const { 
+      const {
         from,
         // dest: to,
-        id: ethId, value 
+        id: ethId,
+        value,
       } = event.args!;
       const chain = 'bsc';
       const id = ethId.replace('0x', '');
       const amount = value.toString();
-      const timestamp = timestampBN.toString();
+      const timestamp = Number(timestampBN.toString());
 
       const hash = receipt.transactionHash;
       const gasUsed =
@@ -117,14 +120,22 @@ async function saveTxs({
       const gasPrice = receipt.effectiveGasPrice || ethers.BigNumber.from('0');
       const fee = gasUsed.mul(gasPrice).toString();
 
-      debug('saving', putType, id);
+      debug(
+        'saving',
+        putType,
+        moment.unix(timestamp).local().toISOString(),
+        from
+        // to
+      );
 
       await baseSaveTx({
         id,
         token,
         putType,
-        from,
-        // to, // 00 error
+        from: !from
+          ? null
+          : sanitizeAddress(putType === 'input' ? 'bsc' : 'vite', from),
+        // to, // 00 error   !to ? null : sanitizeAddress(putType === 'output' ? 'bsc' : 'vite', to),
         fee,
         timestamp,
         amount,

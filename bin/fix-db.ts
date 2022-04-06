@@ -1,7 +1,7 @@
 import './utils/dotenv';
-import sync from '../src/sync/vite';
+import scan from '../src/sync/fix-db';
 
-sync(true).then(
+scan().then(
   () => {
     process.exit();
   },
