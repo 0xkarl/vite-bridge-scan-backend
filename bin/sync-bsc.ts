@@ -1,5 +1,5 @@
 import './utils/dotenv';
-import sync from '../src/sync/bsc';
+import { sync } from '../src/sync/bsc';
 
 sync().then(
   () => {

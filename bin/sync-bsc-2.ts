@@ -1,5 +1,5 @@
 import './utils/dotenv';
-import { scan2 as sync } from '../src/sync/bsc';
+import { sync2 as sync } from '../src/sync/bsc';
 
 sync().then(
   () => {

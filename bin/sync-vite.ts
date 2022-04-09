@@ -1,5 +1,5 @@
 import './utils/dotenv';
-import sync from '../src/sync/vite';
+import { sync } from '../src/sync/vite';
 
 sync(true).then(
   () => {

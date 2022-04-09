@@ -13,14 +13,17 @@ import {
 import * as redis from '../../utils/redis';
 import ABI from './channel.json';
 
+const debugs = Object.keys(BSC_CONTRACTS).reduce((r, t) => {
+  r[t] = Debug('backend:b:' + t);
+  return r;
+}, {} as Record<string, any>);
+
 const provider = new ethers.providers.JsonRpcProvider(BSC_WEB3_PROVIDER);
 
-export default scan;
-
-async function scan() {
+export async function sync() {
   for (const t in BSC_CONTRACTS) {
     const token = t as Token;
-    const debug = Debug('vite:b:sync:' + token);
+    const debug = debugs[token];
 
     const { address, creationBlock } = BSC_CONTRACTS[token]!;
     const contract = new ethers.Contract(address, ABI, provider);
@@ -51,15 +54,15 @@ async function scan() {
 
     if (toBlock !== currentBlock) {
       await sleep(1_000);
-      await scan();
+      await sync();
     }
   }
 }
 
-export async function scan2(toBlock?: number) {
+export async function sync2(toBlock?: number) {
   for (const t in BSC_CONTRACTS) {
     const token = t as Token;
-    const debug = Debug('vite:b:sync:' + token);
+    const debug = debugs[token];
 
     const { address } = BSC_CONTRACTS[token]!;
 
@@ -74,7 +77,7 @@ export async function scan2(toBlock?: number) {
     debug('end');
 
     await sleep(1_000);
-    await scan2(fromBlock);
+    await sync2(fromBlock);
   }
 }
 
@@ -143,5 +146,17 @@ async function saveTxs({
         chain,
       });
     }
+  }
+}
+
+export async function subscribe() {
+  for (const t in BSC_CONTRACTS) {
+    const token = t as Token;
+    const debug = debugs[token];
+    debug('subscribe');
+    const { address } = BSC_CONTRACTS[token]!;
+    provider.on({ address }, () => {
+      sync();
+    });
   }
 }
