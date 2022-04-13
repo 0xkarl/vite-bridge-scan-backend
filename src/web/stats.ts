@@ -57,7 +57,9 @@ export default function () {
     const uniqFroms = await uniqFromsCursor.toArray();
     const uniqTos = await uniqTosCursor.toArray();
     const uniqAddresses = [...uniqFroms, ...uniqTos].reduce((r, a) => {
-      r[a._id.toLowerCase()] = r[a._id.toLowerCase()] || 1;
+      if (a._id) {
+        r[a._id.toLowerCase()] = r[a._id.toLowerCase()] || 1;
+      }
       return r;
     }, {} as Record<string, number>);
 
