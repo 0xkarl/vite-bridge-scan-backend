@@ -1,19 +1,24 @@
 import express from 'express';
 import * as db from '../utils/db';
+import { ResponseError } from '../types';
 
 const DEFAULT_PAGE_COUNT = 10;
 
 export default function () {
   const app = express.Router();
 
-  app.get('/:id', async (req, res) => {
+  app.get('/:id', async (req, res, next) => {
     const { id } = req.params;
     const txn = await (
       await db.collection()
     ).findOne({
       oid: id,
     });
-    if (!txn?.input) throw new Error(`unknown txn(${id})`);
+    if (!txn?.input) {
+      const err = new ResponseError(`unknown txn(${id})`);
+      err.status = 404;
+      return next();
+    }
     res.json(formatTxn(txn));
   });
 
