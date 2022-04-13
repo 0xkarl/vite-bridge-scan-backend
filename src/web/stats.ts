@@ -24,6 +24,7 @@ export default function () {
         {
           $match: {
             'input.timestamp': {
+              $exists: true,
               $gte: moment.utc().add(-8, 'days').unix(),
             },
           },

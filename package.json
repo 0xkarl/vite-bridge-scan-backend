@@ -32,7 +32,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "lint": "tsc --noEmit",
+    "lint": "tsc --pretty",
     "prepare": "husky install"
   },
   "engines": {

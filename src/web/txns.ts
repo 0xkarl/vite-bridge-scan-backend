@@ -2,7 +2,7 @@ import express from 'express';
 import * as db from '../utils/db';
 import { ResponseError } from '../types';
 
-const DEFAULT_PAGE_COUNT = 10;
+const DEFAULT_PAGE_COUNT = 50;
 
 export default function () {
   const app = express.Router();
@@ -30,7 +30,6 @@ export default function () {
       query.count as string,
       DEFAULT_PAGE_COUNT
     );
-    const address = ((query.address as string) || '').trim().toLowerCase();
 
     const count = countArg > DEFAULT_PAGE_COUNT ? DEFAULT_PAGE_COUNT : countArg;
     const frm = pageArg * count;
@@ -38,7 +37,9 @@ export default function () {
     const dbQuery: Record<string, any> = {
       input: { $exists: true },
     };
-    if (query.address) {
+
+    const address = sanitizeAddress(query.address as string);
+    if (address) {
       dbQuery['$or'] = [
         {
           from: address,
@@ -47,6 +48,21 @@ export default function () {
           to: address,
         },
       ];
+    } else {
+      const from = sanitizeAddress(query.from as string);
+      if (from) {
+        dbQuery.from = from;
+      }
+
+      const to = sanitizeAddress(query.to as string);
+      if (to) {
+        dbQuery.to = to;
+      }
+
+      const token = sanitizeAddress(query.token as string);
+      if (token) {
+        dbQuery.token = token;
+      }
     }
 
     const c = await db.collection();
@@ -81,4 +97,8 @@ function parseNumberQueryParam(s: string, defaultVal: number): number {
   const val = parseInt(s);
   if (isNaN(val)) return defaultVal;
   return val;
+}
+
+function sanitizeAddress(address: string) {
+  return (address || '').trim().toLowerCase();
 }
