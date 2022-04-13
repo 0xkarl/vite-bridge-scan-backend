@@ -8,47 +8,60 @@ export default function () {
 
   app.get('/', async (req, res) => {
     const c = await db.collection();
-    const [noOfTransactions, uniqAddresses, txs] = await Promise.all([
-      c.estimatedDocumentCount(),
-      c.aggregate([
-        {
-          $group: {
-            _id: {
-              from: '$from',
-              to: '$to',
+    const [noOfTransactions, uniqFromsCursor, uniqTosCursor, txsCursor] =
+      await Promise.all([
+        c.estimatedDocumentCount(),
+        c.aggregate([
+          {
+            $group: {
+              _id: '$from',
+              count: { $sum: 1 },
             },
           },
-        },
-      ]),
-      c.aggregate([
-        {
-          $match: {
-            'input.timestamp': {
-              $exists: true,
-              $gte: moment.utc().add(-8, 'days').unix(),
+        ]),
+        c.aggregate([
+          {
+            $group: {
+              _id: '$to',
+              count: { $sum: 1 },
             },
           },
-        },
-        {
-          $group: {
-            _id: {
-              $dateToString: {
-                format: '%Y-%m-%d',
-                date: {
-                  $toDate: {
-                    $multiply: [1000, '$input.timestamp'],
+        ]),
+        c.aggregate([
+          {
+            $match: {
+              'input.timestamp': {
+                $exists: true,
+                $gte: moment.utc().add(-8, 'days').unix(),
+              },
+            },
+          },
+          {
+            $group: {
+              _id: {
+                $dateToString: {
+                  format: '%Y-%m-%d',
+                  date: {
+                    $toDate: {
+                      $multiply: [1000, '$input.timestamp'],
+                    },
                   },
                 },
               },
+              count: { $sum: 1 },
             },
-            count: { $sum: 1 },
           },
-        },
-      ]),
-    ]);
+        ]),
+      ]);
 
-    const noOfAddresses = (await uniqAddresses.toArray()).length;
-    const series = (await txs.toArray()).reduce((r, s) => {
+    const uniqFroms = await uniqFromsCursor.toArray();
+    const uniqTos = await uniqTosCursor.toArray();
+    const uniqAddresses = [...uniqFroms, ...uniqTos].reduce((r, a) => {
+      r[a._id.toLowerCase()] = r[a._id.toLowerCase()] || 1;
+      return r;
+    }, {} as Record<string, number>);
+
+    const series = (await txsCursor.toArray()).reduce((r, s) => {
       r[s._id] = s.count;
       return r;
     }, {} as Record<string, number>);
@@ -69,7 +82,7 @@ export default function () {
           },
         ],
       },
-      noOfAddresses,
+      noOfAddresses: Object.keys(uniqAddresses).length,
       noOfTransactions,
     });
   });
