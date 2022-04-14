@@ -138,6 +138,7 @@ async function saveTxs({
         from: !from
           ? null
           : sanitizeAddress(putType === 'input' ? 'bsc' : 'vite', from),
+        // the to address here is truncated for some reason
         // to, // 00 error   !to ? null : sanitizeAddress(putType === 'output' ? 'bsc' : 'vite', to),
         fee,
         timestamp,
