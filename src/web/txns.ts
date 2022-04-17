@@ -63,6 +63,16 @@ export default function () {
       if (token) {
         dbQuery.token = token;
       }
+
+      const fromHash = sanitizeAddress(query.fromHash as string);
+      if (fromHash) {
+        dbQuery['input.hash'] = fromHash;
+      }
+
+      const toHash = sanitizeAddress(query.toHash as string);
+      if (toHash) {
+        dbQuery['output.hash'] = toHash;
+      }
     }
 
     const c = await db.collection();
