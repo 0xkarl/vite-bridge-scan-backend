@@ -29,7 +29,7 @@ async function scan() {
     const set: Record<string, boolean> = {};
     for (const put of PUTS) {
       const putVal = doc[put];
-      if (putVal) {
+      if (putVal && !putVal.confirmed) {
         const confirmed = await getConfirmed(doc.oid, put, putVal);
         if (confirmed) {
           set[`${put}.confirmed`] = true;
