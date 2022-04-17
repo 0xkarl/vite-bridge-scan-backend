@@ -42,33 +42,35 @@ export async function sync(fromZero?: boolean) {
       'ledger_getLatestAccountBlock',
       address
     );
-    const currentHeight = currentBlock.height;
+    const currentHeight = Number(currentBlock.height);
     debug('current height', currentHeight);
 
     const redisLatestSyncBlockKey = getRedisLatestSyncBlockKey('vite', token);
     let lastHeight = 0;
     if (!fromZero) {
-      lastHeight = parseInt(
+      lastHeight = Number(
         (await redis.client.get(redisLatestSyncBlockKey)) ?? '0'
       );
     }
     debug('last height', lastHeight);
 
-    const logs: Log[] = await provider.request('ledger_getVmLogsByFilter', {
-      addressHeightRange: {
-        [address]: {
-          fromHeight: lastHeight.toString(),
-          toHeight: currentHeight.toString(),
+    if (currentHeight > lastHeight) {
+      const logs: Log[] = await provider.request('ledger_getVmLogsByFilter', {
+        addressHeightRange: {
+          [address]: {
+            fromHeight: lastHeight.toString(),
+            toHeight: currentHeight.toString(),
+          },
         },
-      },
-    });
+      });
 
-    if (!logs.length) return;
+      if (logs.length) {
+        await Promise.all(logs.reverse().map((log) => processLog(token, log)));
+      }
 
-    await Promise.all(logs.reverse().map((log) => processLog(token, log)));
-
+      await redis.client.set(redisLatestSyncBlockKey, currentHeight);
+    }
     debug('end');
-    await redis.client.set(redisLatestSyncBlockKey, currentHeight);
   }
 }
 
@@ -89,7 +91,7 @@ export async function subscribe() {
       const filterParams = {
         addressHeightRange: {
           [address]: {
-            fromHeight: '0',
+            fromHeight: lastHeight,
             toHeight: '0',
           },
         },
