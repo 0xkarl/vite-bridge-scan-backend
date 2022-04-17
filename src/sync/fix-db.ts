@@ -10,7 +10,8 @@ async function scan() {
       updateMany: {
         filter: { oid: doc.oid },
         update: {
-          $set: { from: doc.from.toLowerCase(), to: doc.to.toLowerCase() },
+          $set: { 'input.confirmed': true, 'output.confirmed': true },
+          $unset: { confirmed: 1 },
         },
         upsert: false,
       },

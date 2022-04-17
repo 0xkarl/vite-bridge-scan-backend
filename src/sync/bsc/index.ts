@@ -2,7 +2,7 @@ import * as ethers from 'ethers';
 import Debug from 'debug';
 import moment from 'moment';
 
-import { BSC_WEB3_PROVIDER, BSC_CONTRACTS } from '../../config';
+import { BSC_CONTRACTS } from '../../config';
 import { sleep } from '../../utils/promise';
 import {
   getRedisLatestSyncBlockKey,
@@ -11,14 +11,13 @@ import {
   Token,
 } from '../../sync/utils';
 import * as redis from '../../utils/redis';
+import { provider } from '../../utils/bsc';
 import ABI from './channel.json';
 
 const debugs = Object.keys(BSC_CONTRACTS).reduce((r, t) => {
   r[t] = Debug('backend:b:' + t);
   return r;
 }, {} as Record<string, any>);
-
-const provider = new ethers.providers.JsonRpcProvider(BSC_WEB3_PROVIDER);
 
 export async function sync() {
   for (const t in BSC_CONTRACTS) {

@@ -1,9 +1,8 @@
-import * as viteHttp from '../../vendor/vitejs-http/dist/index.node';
 import * as vite from '../../vendor/vitejs/dist/index.node';
 import Debug from 'debug';
 import moment from 'moment';
 
-import { VITE_PROVIDER_URL, VITE_CONTRACTS } from '../../config';
+import { VITE_CONTRACTS } from '../../config';
 import {
   getRedisLatestSyncBlockKey,
   saveTx,
@@ -11,6 +10,7 @@ import {
   Token,
 } from '../../sync/utils';
 import * as redis from '../../utils/redis';
+import { provider } from '../../utils/vite';
 import ABI from './channel.json';
 
 const debugs = Object.keys(VITE_CONTRACTS).reduce((r, t) => {
@@ -25,11 +25,6 @@ const events = ABI.filter(
   putType: abi.name?.toLocaleLowerCase()!,
   logSignature: vite.abi.encodeLogSignature(abi),
 }));
-
-const provider = new vite.ViteAPI(
-  new viteHttp.HTTP_RPC(VITE_PROVIDER_URL),
-  () => {}
-);
 
 type Log = {
   accountBlockHash: string;
