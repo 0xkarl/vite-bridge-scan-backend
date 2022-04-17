@@ -21,6 +21,8 @@ async function scan() {
     })
     .toArray();
   debug(`docs: ${docs.length}`);
+  if (!docs.length) return;
+
   const docToUpdate: Record<string, Record<string, boolean>> = {};
   for (const doc of docs) {
     debug(`doc(${doc.oid})`);
@@ -28,22 +30,29 @@ async function scan() {
     for (const put of PUTS) {
       const putVal = doc[put];
       if (putVal) {
-        set[`${put}.confirmed`] = await getConfirmed(doc.oid, put, putVal);
+        const confirmed = await getConfirmed(doc.oid, put, putVal);
+        if (confirmed) {
+          set[`${put}.confirmed`] = true;
+        }
       }
     }
-    docToUpdate[doc.oid] = set;
+    if (Object.keys(set).length) {
+      docToUpdate[doc.oid] = set;
+    }
   }
-  await c.bulkWrite(
-    Object.entries(docToUpdate).map(([oid, set]) => ({
-      updateMany: {
-        filter: { oid },
-        update: {
-          $set: set,
-        },
-        upsert: false,
+
+  const bulkWriteOpts = Object.entries(docToUpdate).map(([oid, set]) => ({
+    updateMany: {
+      filter: { oid },
+      update: {
+        $set: set,
       },
-    }))
-  );
+      upsert: false,
+    },
+  }));
+  if (!bulkWriteOpts.length) return;
+
+  await c.bulkWrite(bulkWriteOpts);
 }
 
 type Put = {
