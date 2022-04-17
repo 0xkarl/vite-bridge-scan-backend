@@ -25,7 +25,7 @@ async function scan() {
   for (const doc of docs) {
     debug(`doc(${doc.oid})`);
     const set: Record<string, boolean> = {};
-    for (const put in PUTS) {
+    for (const put of PUTS) {
       const putVal = doc[put];
       if (putVal) {
         set[`${put}.confirmed`] = await getConfirmed(doc.oid, put, putVal);
