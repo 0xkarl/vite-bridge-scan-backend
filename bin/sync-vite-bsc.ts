@@ -1,7 +1,7 @@
 import './utils/dotenv';
-import { sync } from '../src/sync/bsc';
+import s from '../src/sync/vite-bsc';
 
-sync().then(
+s.sync(true).then(
   () => {
     process.exit();
   },

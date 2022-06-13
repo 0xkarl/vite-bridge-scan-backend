@@ -1,7 +1,7 @@
 import './utils/dotenv';
-import { sync } from '../src/sync/vite';
+import s from '../src/sync/eth-vite';
 
-sync(true).then(
+s.sync().then(
   () => {
     process.exit();
   },

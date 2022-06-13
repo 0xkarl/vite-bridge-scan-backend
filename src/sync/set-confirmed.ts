@@ -2,11 +2,13 @@ import Debug from 'debug';
 import * as db from '../utils/db';
 import { provider as viteProvider } from '../utils/vite';
 import { provider as bscProvider } from '../utils/bsc';
-import { Chain } from '../sync/utils';
+import { provider as ethProvider } from '../utils/eth';
+import { Chain } from './utils/utils';
 
 const debug = Debug('backend:set-confirmed');
 const MAX_VITE_CONFIRMATIONS = 100;
 const MAX_BSC_CONFIRMATIONS = 10;
+const MAX_ETH_CONFIRMATIONS = 10;
 const PUTS = ['input', 'output'];
 
 export default scan;
@@ -62,23 +64,46 @@ type Put = {
 
 async function getConfirmed(oid: string, put: string, { chain, hash }: Put) {
   let confirmations = 0;
-  const maxConfirmations =
-    chain === 'vite' ? MAX_VITE_CONFIRMATIONS : MAX_BSC_CONFIRMATIONS;
+  let maxConfirmations;
+
+  switch (chain) {
+    case 'vite': {
+      maxConfirmations = MAX_VITE_CONFIRMATIONS;
+      break;
+    }
+    case 'bsc': {
+      maxConfirmations = MAX_BSC_CONFIRMATIONS;
+      break;
+    }
+    case 'eth': {
+      maxConfirmations = MAX_ETH_CONFIRMATIONS;
+      break;
+    }
+    default:
+      throw new Error(`unknown chain (${chain})`);
+  }
 
   if (chain && hash) {
-    if (chain === 'vite') {
-      const x = await viteProvider.request(
-        'ledger_getAccountBlockByHash',
-        hash
-      );
-      if (x) {
-        confirmations = Number(x.confirmations);
+    let x;
+    switch (chain) {
+      case 'vite': {
+        x = await viteProvider.request('ledger_getAccountBlockByHash', hash);
+        break;
       }
-    } else {
-      const x = await bscProvider.getTransaction(hash);
-      if (x) {
-        confirmations = Number(x.confirmations);
+      case 'bsc': {
+        x = await bscProvider.getTransaction(hash);
+        break;
       }
+      case 'eth': {
+        x = await ethProvider.getTransaction(hash);
+        break;
+      }
+      default:
+        throw new Error(`unknown chain (${chain})`);
+    }
+
+    if (x) {
+      confirmations = Number(x.confirmations);
     }
   }
   debug(`doc(${oid}): ${put}(${confirmations}/${maxConfirmations})`);

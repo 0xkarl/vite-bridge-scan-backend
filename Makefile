@@ -6,16 +6,28 @@ web:
 cron:
 	@DEBUG=backend:* ./node_modules/.bin/env-cmd ./node_modules/.bin/ts-node bin/$@.ts
 
-sync-vite:
+sync-vite-bsc:
 	@DEBUG=backend:* ./node_modules/.bin/env-cmd ./node_modules/.bin/ts-node bin/$@.ts
 
-sync-bsc:
+sync-vite-eth:
 	@DEBUG=backend:* ./node_modules/.bin/env-cmd ./node_modules/.bin/ts-node bin/$@.ts
 
-sync-bsc-2:
+sync-bsc-vite:
+	@DEBUG=backend:* ./node_modules/.bin/env-cmd ./node_modules/.bin/ts-node bin/$@.ts
+
+sync-bsc-vite-2:
+	@DEBUG=backend:* ./node_modules/.bin/env-cmd ./node_modules/.bin/ts-node bin/$@.ts
+
+sync-eth-vite:
+	@DEBUG=backend:* ./node_modules/.bin/env-cmd ./node_modules/.bin/ts-node bin/$@.ts
+
+sync-eth-vite-2:
 	@DEBUG=backend:* ./node_modules/.bin/env-cmd ./node_modules/.bin/ts-node bin/$@.ts
 
 fix-db:
+	@DEBUG=backend:* ./node_modules/.bin/env-cmd ./node_modules/.bin/ts-node bin/$@.ts
+
+set-confirmed:
 	@DEBUG=backend:* ./node_modules/.bin/env-cmd ./node_modules/.bin/ts-node bin/$@.ts
 
 deploy:
@@ -26,8 +38,12 @@ deploy:
 .PHONY: \
 	web \
 	cron \
-	sync-vite \
-	sync-bsc \
-	sync-bsc-2 \
+	sync-vite-bsc \
+	sync-vite-eth \
+	sync-bsc-vite \
+	sync-bsc-vite-2 \
+	sync-eth-vite \
+	sync-eth-vite-2 \
 	fix-db \
+	set-confirmed \
 	deploy

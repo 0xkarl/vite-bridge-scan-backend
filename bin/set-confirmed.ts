@@ -1,7 +1,7 @@
 import './utils/dotenv';
-import { sync2 as sync } from '../src/sync/bsc';
+import s from '../src/sync/set-confirmed';
 
-sync().then(
+s().then(
   () => {
     process.exit();
   },

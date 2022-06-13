@@ -1,9 +1,11 @@
-import * as redis from '../utils/redis';
-import * as db from '../utils/db';
+import * as redis from '../../utils/redis';
+import * as db from '../../utils/db';
 
 export type Token = 'vite' | 'usdv';
 
-export type Chain = 'bsc' | 'vite';
+export type Channel = 'bsc-vite' | 'eth-vite' | 'vite-eth' | 'vite-bsc';
+
+export type Chain = 'bsc' | 'vite' | 'eth';
 
 export type PutType = 'input' | 'output';
 
@@ -22,9 +24,9 @@ export function getRedisTxnKey(id: string): string {
   return redis.prefix(`txn:${id}`);
 }
 
-export function sanitizeAddress(chain: Chain, address: string): string {
+export function sanitizeAddress(isVite: boolean, address: string): string {
   const addr = address.replace('0x', '').replace('vite_', '').toLowerCase();
-  if (chain === 'vite') {
+  if (isVite) {
     return `vite_${addr}`;
   } else {
     return `0x${addr}`;
@@ -32,7 +34,7 @@ export function sanitizeAddress(chain: Chain, address: string): string {
 }
 
 export async function saveTx({
-  id,
+  oid,
   token,
   putType,
   from,
@@ -42,8 +44,9 @@ export async function saveTx({
   amount,
   hash,
   chain,
+  channel,
 }: {
-  id: string;
+  oid: string;
   token: Token;
   putType: PutType;
   from?: string;
@@ -53,9 +56,10 @@ export async function saveTx({
   amount: string;
   hash: string;
   chain: Chain;
+  channel: Channel;
 }) {
   const dbUpdate: Record<string, any> = {};
-
+  dbUpdate.channel = channel;
   if (from) {
     dbUpdate.from = from;
   }
@@ -78,9 +82,8 @@ export async function saveTx({
       chain,
     };
   }
-
   (await db.collection()).updateOne(
-    { oid: id },
+    { oid: oid },
     { $set: { ...dbUpdate, token } },
     { upsert: true }
   );

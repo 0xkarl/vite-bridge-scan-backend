@@ -95,9 +95,13 @@ function formatTxn(txn: any) {
   delete txn.oid;
   delete txn._id;
   if (!txn.output) {
-    txn.output = {
-      chain: txn.input.chain === 'bsc' ? 'vite' : 'bsc',
-    };
+    let output;
+    if (txn.channel) {
+      [, output] = txn.channel.split('-');
+    } else {
+      output = txn.input.chain === 'vite' ? 'bsc' : 'vite';
+    }
+    txn.output = { chain: output };
   }
   return txn;
 }
