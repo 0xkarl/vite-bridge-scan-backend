@@ -8,7 +8,7 @@ const contracts = IS_TESTNET
         address: 'vite_029b2a33f03a39009f96f141b7e1ae52c73830844f3b9804e8',
       },
       usdv: {
-        address: '', // 'vite_9c337fe9a8d4828c80de00d5c3432f62c3dece4ac9062aa008',
+        address: 'vite_9c337fe9a8d4828c80de00d5c3432f62c3dece4ac9062aa008',
       },
     }
   : {
