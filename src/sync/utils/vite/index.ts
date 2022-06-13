@@ -34,7 +34,7 @@ export default function ({
   channel: Channel;
 }) {
   const debugs = Object.keys(contracts).reduce((r, t) => {
-    r[t] = Debug('backend:v:' + t);
+    r[t] = Debug(`backend:${channel}:${t}`);
     return r;
   }, {} as Record<string, any>);
 
@@ -53,6 +53,7 @@ export default function ({
       if (!address) return;
 
       const debug = debugs[token];
+      debug('sync');
       const currentBlock = await provider.request(
         'ledger_getLatestAccountBlock',
         address
@@ -97,10 +98,11 @@ export default function ({
   async function subscribe() {
     for (const t in contracts) {
       const token = t as Token;
+      const { address } = contracts[token]!;
+      if (!address) return;
+
       const debug = debugs[token];
       debug('subscribe');
-      const { address } = contracts[token]!;
-
       const redisLatestSyncBlockKey = getRedisLatestSyncBlockKey(
         channel,
         token
@@ -114,7 +116,7 @@ export default function ({
         const filterParams = {
           addressHeightRange: {
             [address]: {
-              fromHeight: lastHeight,
+              fromHeight: lastHeight.toString(),
               toHeight: '0',
             },
           },

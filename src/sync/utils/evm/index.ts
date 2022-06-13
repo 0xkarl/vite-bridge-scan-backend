@@ -38,7 +38,7 @@ export default function ({
   blocksPage: number;
 }) {
   const debugs = Object.keys(contracts).reduce((r, t) => {
-    r[t] = Debug('backend:b:' + t);
+    r[t] = Debug(`backend:${channel}:${t}`);
     return r;
   }, {} as Record<string, any>);
 
@@ -49,13 +49,13 @@ export default function ({
       if (!address) return;
 
       const debug = debugs[token];
+      debug('sync');
       const contract = new ethers.Contract(address, abiJSON, provider);
       const redisLatestSyncBlockKey = getRedisLatestSyncBlockKey(
         channel,
         token
       );
       const currentBlock = await provider.getBlockNumber();
-
       debug('current block', currentBlock);
 
       let fromBlock: number, toBlock: number;
@@ -64,7 +64,6 @@ export default function ({
       const lastBlock = lastBlockString
         ? parseInt(lastBlockString)
         : creationBlock;
-
       debug('last block', lastBlock);
 
       fromBlock = lastBlock || creationBlock;
@@ -74,9 +73,8 @@ export default function ({
       }
 
       await saveTxs({ contract, token, fromBlock, toBlock, debug });
-
-      debug('end', toBlock.toString());
       await redis.client.set(redisLatestSyncBlockKey, toBlock.toString());
+      debug('end', toBlock.toString());
 
       if (toBlock !== currentBlock) {
         await sleep(1_000);
@@ -88,10 +86,10 @@ export default function ({
   async function sync2(toBlock?: number) {
     for (const t in contracts) {
       const token = t as Token;
-      const debug = debugs[token];
-
       const { address } = contracts[token]!;
+      if (!address) return;
 
+      const debug = debugs[token];
       const contract = new ethers.Contract(address, abiJSON, provider);
       if (!toBlock) {
         toBlock = await provider.getBlockNumber();
@@ -160,20 +158,20 @@ export default function ({
           // to
         );
 
-        console.log({
-          oid,
-          token,
-          putType,
-          from: !from ? null : sanitizeAddress(putType !== 'input', from),
-          // the to address here is truncated for some reason
-          // to, // 00 error   !to ? null : sanitizeAddress(putType !== 'output', to),
-          fee,
-          timestamp,
-          amount,
-          hash,
-          chain,
-          channel,
-        });
+        // console.log({
+        //   oid,
+        //   token,
+        //   putType,
+        //   from: !from ? null : sanitizeAddress(putType !== 'input', from),
+        //   // the to address here is truncated for some reason
+        //   // to, // 00 error   !to ? null : sanitizeAddress(putType !== 'output', to),
+        //   fee,
+        //   timestamp,
+        //   amount,
+        //   hash,
+        //   chain,
+        //   channel,
+        // });
         await baseSaveTx({
           oid,
           token,
@@ -195,9 +193,11 @@ export default function ({
   async function subscribe() {
     for (const t in contracts) {
       const token = t as Token;
+      const { address } = contracts[token]!;
+      if (!address) return;
+
       const debug = debugs[token];
       debug('subscribe');
-      const { address } = contracts[token]!;
       provider.on({ address }, () => {
         sync();
       });
