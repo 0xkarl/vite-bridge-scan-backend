@@ -32,7 +32,7 @@ set-confirmed:
 
 deploy:
 	git push
-	git push heroku-testnet-api main
+	git push heroku main
 
 .PHONY: \
 	web \
