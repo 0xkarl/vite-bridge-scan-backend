@@ -33,7 +33,6 @@ set-confirmed:
 deploy:
 	git push
 	git push heroku-testnet-api main
-	git push heroku-testnet-cron main
 
 .PHONY: \
 	web \
